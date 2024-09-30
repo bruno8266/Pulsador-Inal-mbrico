@@ -16,9 +16,12 @@ uint8_t mensaje = 4;											  // Mensaje que se enviará al receptor
 #define MENSAJE_LLAVE 3
 #define MENSAJE_PULSADOR 4
 size_t mensaje_tam = 1;
-uint8_t modo = 0;	//Modo de funcionamiento
+
+#define pulsador_modo 2
+bool modo = LOW;	//Modo de funcionamiento
 
 bool conexion = false; // Variable para ver el estado de la conexión
+bool chequeo_mensaje = false;
 WifiEspNowSendStatus estado_actual;
 
 #define pulsador 0
@@ -48,10 +51,12 @@ void setup()
 	}
 
 	pinMode(pulsador, INPUT);
+	pinMode(pulsador_modo, INPUT);
 }
 
 void loop()
 {
+/*
 	//Verificamos en el puerto serie si ya nos conectamos
 	if (conexion == true)
 	{
@@ -61,19 +66,42 @@ void loop()
 	{
 		Serial.println("Sin conexion");
 	}
-
-	// Enviamos un paquete al receptor
-	if (digitalRead(pulsador) == 1) // Leemos el estado del pulsador
-	{
-		mensaje = MENSAJE_PULSADOR;
-		WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
-		Serial.println("Mensaje enviado: ON");
+*/
+	// Chequeamos si se debe cambiar el modo de funcionamiento
+	if (digitalRead(pulsador_modo) == HIGH)
+/*	{
+		
+		modo = !modo;
 	}
+
+	// Modo pulsador
+	if (modo == HIGH)
+	*/
+	{
+		if (digitalRead(pulsador) == LOW ) // Leemos el estado del pulsador
+		{
+			mensaje = MENSAJE_PULSADOR;
+			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
+			Serial.println("Mensaje enviado: ON");
+		}
+		else
+		{
+			mensaje = MENSAJE_PULSADOR + 1;
+			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
+			Serial.println("Mensaje enviado: OFF");
+		}
+	}
+	// Modo SWITCH
 	else
 	{
-		mensaje = MENSAJE_PULSADOR + 1;
-		WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
-		Serial.println("Mensaje enviado: OFF");
+		if(digitalRead(pulsador) == LOW) // Leemos el estado del pulsador
+			{
+				mensaje = MENSAJE_LLAVE;
+				Serial.print("Estado del envio:");
+				chequeo_mensaje = WifiEspNow.send(rx_mac_address, (uint8_t *) &mensaje, mensaje_tam);
+				Serial.println(chequeo_mensaje);
+				//digitalWrite(LED_BUILTIN, HIGH);
+			}
 	}
 	// Chequeamos el estado del envío
 	// estado_actual = WifiEspNow.getSendStatus();
@@ -83,5 +111,5 @@ void loop()
 
 	/*	Serial.print("ESP Board MAC Address:  ");
 		Serial.println(WiFi.macAddress());*/
-	delay(10);
+	delay(500);
 }
