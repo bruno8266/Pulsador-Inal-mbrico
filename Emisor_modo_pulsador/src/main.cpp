@@ -11,10 +11,10 @@
 // tx_mac_adress = {B4, E6, 2D, 1A, 2B, A5}
 // rx_mac_adress = {CC, 50, E3, 07, 2D, 2F}
 
-uint8_t rx_mac_address[6] = {0xCC, 0x50, 0xE3, 0x07, 0x2D, 0x2F}; // Dirección del receptor
+uint8_t rx_mac_address[6] = {0xB4, 0xE6, 0x2D, 0x1A, 0x2B, 0xA5}; // Dirección del receptor
 uint8_t mensaje = 4;											  // Mensaje que se enviará al receptor
-#define MENSAJE_LLAVE 4
-#define MENSAJE_PULSADOR 5
+#define MENSAJE_LLAVE 3
+#define MENSAJE_PULSADOR 4
 size_t mensaje_tam = 1;
 uint8_t modo = 0;	//Modo de funcionamiento
 
@@ -77,7 +77,6 @@ void loop()
 	}
 	// Chequeamos el estado del envío
 	// estado_actual = WifiEspNow.getSendStatus();
-	mensaje++;
 
 
 
