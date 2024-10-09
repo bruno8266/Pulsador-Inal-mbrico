@@ -17,8 +17,8 @@ uint8_t mensaje = 4;											  // Mensaje que se enviará al receptor
 #define MENSAJE_PULSADOR 4
 size_t mensaje_tam = 1;
 
-#define pulsador_modo 2
-bool modo = LOW;	//Modo de funcionamiento
+#define pulsador_modo 2		//OJO: hay que usar resistencia de pull-up con este pin 
+bool modo = HIGH;	//Modo de funcionamiento
 
 bool conexion = false; // Variable para ver el estado de la conexión
 bool chequeo_mensaje = false;
@@ -52,6 +52,8 @@ void setup()
 
 	pinMode(pulsador, INPUT);
 	pinMode(pulsador_modo, INPUT);
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop()
@@ -68,15 +70,13 @@ void loop()
 	}
 */
 	// Chequeamos si se debe cambiar el modo de funcionamiento
-	if (digitalRead(pulsador_modo) == HIGH)
-/*	{
-		
+	if (digitalRead(pulsador_modo) == LOW)	// Porque GPIO2 tiene que tener resistencia de pull-up
+	{
 		modo = !modo;
-	}
-
-	// Modo pulsador
+		digitalWrite(LED_BUILTIN, modo);
+	}	
+	// Chequeamos si se debe cambiar el modo de funcionamiento
 	if (modo == HIGH)
-	*/
 	{
 		if (digitalRead(pulsador) == LOW ) // Leemos el estado del pulsador
 		{
