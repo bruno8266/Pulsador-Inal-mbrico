@@ -14,7 +14,8 @@
 uint8_t rx_mac_address[6] = {0xB4, 0xE6, 0x2D, 0x1A, 0x2B, 0xA5}; // Dirección del receptor
 uint8_t mensaje = 4;											  // Mensaje que se enviará al receptor
 #define MENSAJE_LLAVE 3
-#define MENSAJE_PULSADOR 4
+#define MENSAJE_PULSADOR_OFF 4
+#define MENSAJE_PULSADOR_ON 5
 size_t mensaje_tam = 1;
 
 #define pulsador_modo 2		//OJO: hay que usar resistencia de pull-up con este pin 
@@ -80,13 +81,13 @@ void loop()
 	{
 		if (digitalRead(pulsador) == LOW ) // Leemos el estado del pulsador
 		{
-			mensaje = MENSAJE_PULSADOR;
+			mensaje = MENSAJE_PULSADOR_OFF;
 			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
 			Serial.println("Mensaje enviado: ON");
 		}
 		else
 		{
-			mensaje = MENSAJE_PULSADOR + 1;
+			mensaje = MENSAJE_PULSADOR_ON + 1;
 			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
 			Serial.println("Mensaje enviado: OFF");
 		}
