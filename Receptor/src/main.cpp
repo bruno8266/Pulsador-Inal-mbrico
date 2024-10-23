@@ -30,25 +30,28 @@ printReceivedMessage(const uint8_t mac[WIFIESPNOW_ALEN], const uint8_t* buf, siz
 
 	if(buf[0] == 3)
 	  	{
-			Serial.println("Modo LLAVE");
 			if(estado_led == false)
 			{
 				estado_led = true;
+				Serial.println("Modo LLAVE: Pulsador ON");
 			}
 			else
 			{
 				estado_led = false;
+				Serial.println("Modo LLAVE: Pulsador OFF");
 			}
 		}
 	if(buf[0] == 4)
 	{
-		Serial.println("Modo PULSADOR: ON");
+		estado_led = true;
+		Serial.println("Modo PULSADOR: pulsador ON");
 	}
 	if(buf[0] == 5)
 	{
-		Serial.println("Modo PULSADOR: OFF");
+		estado_led = false;
+		Serial.println("Modo PULSADOR: pulsador OFF");
 	}
-		//digitalWrite(LED_BUILTIN,estado_led);
+		digitalWrite(LED_BUILTIN,estado_led);
 }
 
 void setup() {
@@ -72,7 +75,7 @@ void setup() {
 	{
 		Serial.println("Felicidades");
 	}
-	//pinMode(LED_BUILTIN, OUTPUT);
+	pinMode(LED_BUILTIN, OUTPUT);
 }
 
 void loop() {
