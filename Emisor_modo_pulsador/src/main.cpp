@@ -103,6 +103,7 @@ void loop()
 				Serial.println(chequeo_mensaje);
 				//digitalWrite(LED_BUILTIN, HIGH);
 			}
+		while(digitalRead(pulsador) != HIGH){}
 	}
 	// Chequeamos el estado del envío
 	// estado_actual = WifiEspNow.getSendStatus();
@@ -112,5 +113,23 @@ void loop()
 
 	/*	Serial.print("ESP Board MAC Address:  ");
 		Serial.println(WiFi.macAddress());*/
-	delay(500);
 }
+
+/*
+bool lectura_antirebote(int buttonPin)
+{
+	// Chequeo el estado del pin
+	bool lectura = digitalRead(buttonPin);
+
+	if (lectura != ultimoEstadoPuls)
+	{
+		// restablecer el temporizador de supresión de rebotes
+		ultimo_tiempo_rebote = millis();
+	}
+
+	if (millis() - ultimo_tiempo_rebote > maximo_tiempo_rebote)
+	{
+		return lectura;
+	}
+}
+*/
