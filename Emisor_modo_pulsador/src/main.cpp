@@ -87,7 +87,7 @@ void loop()
 		}
 		else
 		{
-			mensaje = MENSAJE_PULSADOR_ON + 1;
+			mensaje = MENSAJE_PULSADOR_ON;
 			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
 			Serial.println("Mensaje enviado: OFF");
 		}
