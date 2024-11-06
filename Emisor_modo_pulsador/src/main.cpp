@@ -16,16 +16,25 @@ uint8_t mensaje = 4;											  // Mensaje que se enviará al receptor
 #define MENSAJE_LLAVE 3
 #define MENSAJE_PULSADOR_OFF 4
 #define MENSAJE_PULSADOR_ON 5
-size_t mensaje_tam = 1;
 
+size_t mensaje_tam = 1;
+#define pulsador 0
 #define pulsador_modo 2		//OJO: hay que usar resistencia de pull-up con este pin 
 bool modo = HIGH;	//Modo de funcionamiento
+bool lectura_modo;
+bool lectura_modo_anterior;
+bool lectura_pulsador;
+bool lectura_pulsador_anterior;
 
 bool conexion = false; // Variable para ver el estado de la conexión
 bool chequeo_mensaje = false;
 WifiEspNowSendStatus estado_actual;
 
-#define pulsador 0
+#define maximo_tiempo_rebote 20
+
+//Funciones
+bool lectura_antirebote(int pin);
+
 
 void setup()
 {
@@ -70,24 +79,27 @@ void loop()
 		Serial.println("Sin conexion");
 	}
 */
+	lectura_modo = lectura_antirebote(pulsador_modo);
 	// Chequeamos si se debe cambiar el modo de funcionamiento
-	if (digitalRead(pulsador_modo) == LOW)	// Porque GPIO2 tiene que tener resistencia de pull-up
+	if (lectura_modo == LOW && lectura_modo_anterior != LOW)	// Porque GPIO2 tiene que tener resistencia de pull-up
 	{
 		modo = !modo;
 		digitalWrite(LED_BUILTIN, modo);
 	}	
+
+	lectura_pulsador = lectura_antirebote(pulsador);
 	// Chequeamos si se debe cambiar el modo de funcionamiento
 	if (modo == HIGH)
 	{
-		if (digitalRead(pulsador) == LOW ) // Leemos el estado del pulsador
+		if (lectura_pulsador == LOW && lectura_pulsador_anterior !=LOW) // Leemos el estado del pulsador
 		{
-			mensaje = MENSAJE_PULSADOR_OFF;
+			mensaje = MENSAJE_PULSADOR_ON;
 			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
 			Serial.println("Mensaje enviado: ON");
 		}
-		else
+		else if (lectura_pulsador == HIGH && lectura_pulsador_anterior != HIGH)
 		{
-			mensaje = MENSAJE_PULSADOR_ON;
+			mensaje = MENSAJE_PULSADOR_OFF;
 			WifiEspNow.send(rx_mac_address, (uint8_t *)&mensaje, mensaje_tam);
 			Serial.println("Mensaje enviado: OFF");
 		}
@@ -95,7 +107,7 @@ void loop()
 	// Modo SWITCH
 	else
 	{
-		if(digitalRead(pulsador) == LOW) // Leemos el estado del pulsador
+		if(lectura_pulsador == LOW && lectura_pulsador_anterior != LOW) // Leemos el estado del pulsador
 			{
 				mensaje = MENSAJE_LLAVE;
 				Serial.print("Estado del envio:");
@@ -103,33 +115,35 @@ void loop()
 				Serial.println(chequeo_mensaje);
 				//digitalWrite(LED_BUILTIN, HIGH);
 			}
-		while(digitalRead(pulsador) != HIGH){}
 	}
+	lectura_modo_anterior = lectura_modo;
+	lectura_pulsador_anterior = lectura_pulsador;
 	// Chequeamos el estado del envío
 	// estado_actual = WifiEspNow.getSendStatus();
-
-
-
 
 	/*	Serial.print("ESP Board MAC Address:  ");
 		Serial.println(WiFi.macAddress());*/
 }
 
-/*
-bool lectura_antirebote(int buttonPin)
-{
-	// Chequeo el estado del pin
-	bool lectura = digitalRead(buttonPin);
 
-	if (lectura != ultimoEstadoPuls)
-	{
-		// restablecer el temporizador de supresión de rebotes
-		ultimo_tiempo_rebote = millis();
-	}
+bool lectura_antirebote(int pin) { //funcion para evitar el rebote de los botones
+  int contador = 0;
+  boolean estado;               //guarda el estado del boton
+  boolean estadoAnterior = HIGH;       //guarda el ultimo estado del boton
 
-	if (millis() - ultimo_tiempo_rebote > maximo_tiempo_rebote)
-	{
-		return lectura;
-	}
+  do {
+    estado = digitalRead(pin);
+    if (estado != estadoAnterior) { //comparamos el estado actual con el anterior
+      contador = 0;                 //reiniciamos el contador
+      estadoAnterior = estado;
+    }
+    else {
+      contador = contador + 1;      //aumentamos el contador en 1
+    }
+    delay(1);
+  } while (contador < maximo_tiempo_rebote);
+
+  return estado;
+
 }
-*/
+
